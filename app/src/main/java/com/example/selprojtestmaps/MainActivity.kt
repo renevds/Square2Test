@@ -1,9 +1,6 @@
 package com.example.selprojtestmaps
 
-import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -21,12 +18,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.maps.android.compose.GoogleMap
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMapOptions
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.UiSettings
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
@@ -59,6 +50,14 @@ fun askPerm(){
     // Track if the user doesn't want to see the rationale any more.
     var doNotShowRationale by rememberSaveable { mutableStateOf(false) }
 
+    var tiles = mutableListOf<Square>()
+    //genenate some tiles
+    for(x in -25..25){
+        for(y in -25..25){
+            tiles.add(Square(x, y))
+        }
+    }
+
     PermissionRequired(
         permissionState = locationPermissionState,
         permissionNotGrantedContent = {
@@ -88,14 +87,14 @@ fun askPerm(){
             }
         }
     ){
-        MapPage()
+        MapPage(tiles)
     }
 
 }
 
 
 @Composable
-fun MapPage() {
+fun MapPage(squares: List<Square>) {
 
     var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
     var properties by remember {
@@ -108,7 +107,7 @@ fun MapPage() {
         uiSettings = uiSettings,
         properties = properties
     ) {
-
+        squares.forEach { s -> s.getPoly() }
     }
 }
 
@@ -116,6 +115,6 @@ fun MapPage() {
 @Composable
 fun DefaultPreview() {
     SelProjTestMapsTheme {
-        MapPage()
+        MapPage(mutableListOf(Square(0, 0)))
     }
 }
